@@ -1,0 +1,632 @@
+/**
+ * DCS Rate Portal - Global Styles
+ * Ultra Premium Light Theme
+ */
+
+// Ionic core
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+
+// Optional utilities
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+// ============================================
+// BASE STYLES
+// ============================================
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--ion-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+}
+
+// Premium headings
+h1, h2, h3, h4 {
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  letter-spacing: -0.01em;
+}
+
+// ============================================
+// PREMIUM COMPONENTS
+// ============================================
+
+// Cards
+ion-card {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-premium);
+  border: var(--border-subtle);
+  margin: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  &.premium-card {
+    border: none;
+    overflow: hidden;
+
+    ion-card-header {
+      padding: 24px 28px 0;
+    }
+
+    ion-card-content {
+      padding: 20px 28px 28px;
+    }
+  }
+
+  &.no-hover:hover {
+    transform: none;
+    box-shadow: var(--shadow-premium);
+  }
+}
+
+// Buttons
+ion-button {
+  --border-radius: var(--border-radius-md);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+
+  &.button-large {
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    font-size: 15px;
+    min-height: 52px;
+  }
+
+  &[fill="solid"] {
+    --box-shadow: 0 4px 14px rgba(30, 58, 95, 0.25);
+
+    &:hover {
+      --box-shadow: 0 6px 20px rgba(30, 58, 95, 0.35);
+      transform: translateY(-1px);
+    }
+  }
+
+  &[fill="outline"] {
+    --border-width: 2px;
+  }
+}
+
+// Inputs
+ion-input, ion-textarea {
+  --background: #ffffff;
+  --border-radius: var(--border-radius-md);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  font-size: 15px;
+
+  &.has-focus {
+    --border-color: var(--ion-color-primary);
+  }
+}
+
+ion-item {
+  --border-radius: var(--border-radius-md);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+
+  &.item-input {
+    --background: #ffffff;
+    border: 2px solid #e8ecf0;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+
+    &.item-has-focus {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.08);
+    }
+
+    &:hover:not(.item-has-focus) {
+      border-color: #ccd4dc;
+    }
+
+    @media (max-width: 480px) {
+      margin-bottom: 12px;
+      --min-height: 48px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+    }
+  }
+}
+
+// ============================================
+// LOGO
+// ============================================
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+
+  img {
+    max-width: 180px;
+    height: auto;
+  }
+
+  // Text logo fallback
+  .logo-text {
+    font-family: var(--font-family-heading);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+    letter-spacing: -0.02em;
+
+    span {
+      color: var(--ion-color-secondary);
+    }
+  }
+}
+
+// ============================================
+// AUTH PAGES
+// ============================================
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f9fa 0%, #eef2f6 100%);
+  position: relative;
+  padding: 24px 0;
+  overflow-y: auto;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40vh;
+    background: var(--gradient-primary);
+    clip-path: ellipse(150% 100% at 50% 0%);
+  }
+}
+
+.auth-card {
+  max-width: 460px;
+  margin: auto;
+  width: 100%;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-xl);
+  background: #ffffff;
+  border: none;
+  position: relative;
+  z-index: 1;
+
+  ion-card-header {
+    text-align: center;
+    padding: 40px 40px 20px;
+
+    ion-card-title {
+      font-family: var(--font-family-heading);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ion-color-primary);
+      margin-bottom: 8px;
+    }
+
+    ion-card-subtitle {
+      font-size: 15px;
+      color: var(--text-color-secondary);
+      margin-top: 0;
+      font-weight: 400;
+    }
+  }
+
+  ion-card-content {
+    padding: 20px 40px 40px;
+  }
+
+  &:hover {
+    transform: none;
+  }
+}
+
+// ============================================
+// STATUS BADGES
+// ============================================
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.active {
+    background: linear-gradient(135deg, rgba(45, 134, 89, 0.1) 0%, rgba(45, 134, 89, 0.15) 100%);
+    color: #2d8659;
+  }
+
+  &.pending {
+    background: linear-gradient(135deg, rgba(212, 160, 23, 0.1) 0%, rgba(212, 160, 23, 0.15) 100%);
+    color: #b8860b;
+  }
+
+  &.disabled {
+    background: linear-gradient(135deg, rgba(184, 50, 50, 0.1) 0%, rgba(184, 50, 50, 0.15) 100%);
+    color: #b83232;
+  }
+}
+
+// ============================================
+// DASHBOARD
+// ============================================
+
+.stat-card {
+  text-align: center;
+  padding: 28px 20px;
+  background: #ffffff;
+  border-radius: var(--border-radius-lg);
+  border: var(--border-subtle);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
+  }
+
+  .stat-value {
+    font-family: var(--font-family-heading);
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    line-height: 1.1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-color-secondary);
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+}
+
+.action-card {
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: var(--border-subtle);
+
+  ion-icon {
+    font-size: 40px;
+    color: var(--ion-color-primary);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--text-color-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &:hover {
+    border-color: var(--ion-color-primary);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+
+    ion-icon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// ============================================
+// DATA TABLES
+// ============================================
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid #e8ecf0;
+  }
+
+  th {
+    background: linear-gradient(180deg, #f8f9fa 0%, #f4f6f8 100%);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-color-secondary);
+  }
+
+  td {
+    font-size: 14px;
+    color: var(--ion-text-color);
+  }
+
+  tr {
+    transition: background 0.2s ease;
+  }
+
+  tbody tr:hover td {
+    background: #f8f9fa;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// ============================================
+// PAGE HEADER
+// ============================================
+
+.page-header {
+  background: var(--gradient-primary);
+  color: #ffffff;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  }
+
+  h1 {
+    font-family: var(--font-family-heading);
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    color: #ffffff;
+  }
+
+  p {
+    font-size: 15px;
+    opacity: 0.85;
+    margin: 10px 0 0;
+    font-weight: 400;
+  }
+}
+
+// ============================================
+// EMPTY STATE
+// ============================================
+
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+
+  ion-icon {
+    font-size: 72px;
+    color: #ccd4dc;
+    margin-bottom: 24px;
+  }
+
+  h3 {
+    font-family: var(--font-family-heading);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    margin: 0 0 12px;
+  }
+
+  p {
+    font-size: 15px;
+    color: var(--text-color-secondary);
+    margin: 0;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+}
+
+// ============================================
+// TOOLBAR
+// ============================================
+
+ion-toolbar {
+  --background: var(--gradient-primary);
+  --color: #ffffff;
+
+  ion-title {
+    font-family: var(--font-family-heading);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+}
+
+// ============================================
+// MENU
+// ============================================
+
+ion-menu {
+  --background: #ffffff;
+  --width: 280px;
+
+  ion-content {
+    --background: #ffffff;
+  }
+
+  ion-item {
+    --padding-start: 20px;
+    --min-height: 52px;
+    font-weight: 500;
+    color: var(--ion-text-color);
+    margin: 4px 12px;
+    border-radius: var(--border-radius-md);
+
+    ion-icon {
+      color: var(--ion-color-primary);
+      margin-right: 16px;
+    }
+
+    &:hover {
+      --background: #f4f6f8;
+    }
+
+    &.active {
+      --background: rgba(30, 58, 95, 0.08);
+      color: var(--ion-color-primary);
+      font-weight: 600;
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 12px 0;
+
+    &::before {
+      height: 180px;
+      clip-path: ellipse(120% 100% at 50% 0%);
+    }
+  }
+
+  .auth-card {
+    margin: 12px 8px;
+    border-radius: var(--border-radius-lg);
+    max-width: none;
+    width: calc(100% - 16px);
+
+    ion-card-header {
+      padding: 20px 16px 12px;
+
+      ion-card-title {
+        font-size: 22px;
+      }
+
+      ion-card-subtitle {
+        font-size: 14px;
+      }
+    }
+
+    ion-card-content {
+      padding: 12px 16px 20px;
+    }
+  }
+
+  .stat-card {
+    padding: 20px 16px;
+
+    .stat-value {
+      font-size: 28px;
+    }
+  }
+
+  .page-header {
+    padding: 24px 16px;
+
+    h1 {
+      font-size: 22px;
+    }
+  }
+
+  .data-table th, .data-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+}
+
+// Extra small mobile
+@media (max-width: 400px) {
+  .auth-container {
+    padding: 8px 0;
+
+    &::before {
+      height: 140px;
+    }
+  }
+
+  .auth-card {
+    margin: 8px 4px;
+    border-radius: 10px;
+    width: calc(100% - 8px);
+
+    ion-card-header {
+      padding: 16px 12px 10px;
+
+      ion-card-title {
+        font-size: 20px;
+      }
+
+      ion-card-subtitle {
+        font-size: 13px;
+      }
+    }
+
+    ion-card-content {
+      padding: 10px 12px 16px;
+    }
+  }
+}
+
+// ============================================
+// ANIMATIONS
+// ============================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }

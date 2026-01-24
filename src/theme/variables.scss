@@ -1,0 +1,125 @@
+/**
+ * DCS Rate Portal - Theme Variables
+ * Ultra premium light design inspired by DCS Group corporate website
+ */
+
+// Import premium fonts
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  // Primary - DCS Navy (from corporate site)
+  --ion-color-primary: #1e3a5f;
+  --ion-color-primary-rgb: 30, 58, 95;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1a3354;
+  --ion-color-primary-tint: #354d6f;
+
+  // Secondary - Elegant Gold accent
+  --ion-color-secondary: #b8860b;
+  --ion-color-secondary-rgb: 184, 134, 11;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #a2760a;
+  --ion-color-secondary-tint: #bf9223;
+
+  // Tertiary - Soft Blue
+  --ion-color-tertiary: #5a7fa8;
+  --ion-color-tertiary-rgb: 90, 127, 168;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #4f7094;
+  --ion-color-tertiary-tint: #6b8cb1;
+
+  // Success
+  --ion-color-success: #2d8659;
+  --ion-color-success-rgb: 45, 134, 89;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28764e;
+  --ion-color-success-tint: #42926a;
+
+  // Warning
+  --ion-color-warning: #d4a017;
+  --ion-color-warning-rgb: 212, 160, 23;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #bb8d14;
+  --ion-color-warning-tint: #d8a92e;
+
+  // Danger
+  --ion-color-danger: #b83232;
+  --ion-color-danger-rgb: 184, 50, 50;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #a22c2c;
+  --ion-color-danger-tint: #bf4747;
+
+  // Medium
+  --ion-color-medium: #6b7c93;
+  --ion-color-medium-rgb: 107, 124, 147;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #5e6d81;
+  --ion-color-medium-tint: #7a899e;
+
+  // Light
+  --ion-color-light: #f8f9fa;
+  --ion-color-light-rgb: 248, 249, 250;
+  --ion-color-light-contrast: #1e3a5f;
+  --ion-color-light-contrast-rgb: 30, 58, 95;
+  --ion-color-light-shade: #dadcdd;
+  --ion-color-light-tint: #f9fafb;
+
+  // Typography - Premium fonts
+  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  // Premium Background - Subtle warm white
+  --ion-background-color: #fafbfc;
+  --ion-background-color-rgb: 250, 251, 252;
+
+  // Text
+  --ion-text-color: #1a2a3a;
+  --ion-text-color-rgb: 26, 42, 58;
+  --text-color-secondary: #5a6a7a;
+
+  // Card
+  --ion-card-background: #ffffff;
+
+  // Toolbar - Navy premium
+  --ion-toolbar-background: #1e3a5f;
+  --ion-toolbar-color: #ffffff;
+
+  // Item
+  --ion-item-background: #ffffff;
+  --ion-item-border-color: #e8ecf0;
+
+  // Border radius - Softer, more elegant
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 20px;
+
+  // Premium Shadows - Softer, more diffused
+  --shadow-sm: 0 1px 3px rgba(30, 58, 95, 0.04);
+  --shadow-md: 0 4px 12px rgba(30, 58, 95, 0.08);
+  --shadow-lg: 0 8px 24px rgba(30, 58, 95, 0.12);
+  --shadow-xl: 0 16px 48px rgba(30, 58, 95, 0.16);
+  --shadow-premium: 0 2px 8px rgba(30, 58, 95, 0.06), 0 8px 32px rgba(30, 58, 95, 0.08);
+
+  // Premium accents
+  --gradient-primary: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+  --gradient-gold: linear-gradient(135deg, #b8860b 0%, #d4a017 100%);
+  --border-subtle: 1px solid rgba(30, 58, 95, 0.08);
+}
+
+// iOS specific
+.ios {
+  --ion-toolbar-background: #1e3a5f;
+}
+
+// Material Design specific
+.md {
+  --ion-toolbar-background: #1e3a5f;
+}
