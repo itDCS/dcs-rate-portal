@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { maintenanceGuard } from './core/guards/maintenance.guard';
 
 export const routes: Routes = [
   // Public routes (guest only)
@@ -34,22 +35,26 @@ export const routes: Routes = [
     path: 'activate/:token',
     loadComponent: () => import('./pages/public/activate/activate.page').then(m => m.ActivatePage)
   },
+  {
+    path: 'maintenance',
+    loadComponent: () => import('./pages/public/maintenance/maintenance.page').then(m => m.MaintenancePage)
+  },
 
-  // User routes (authenticated)
+  // User routes (authenticated + maintenance check)
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/user/dashboard/dashboard.page').then(m => m.DashboardPage),
-    canActivate: [authGuard]
+    canActivate: [authGuard, maintenanceGuard]
   },
   {
     path: 'tariff',
     loadComponent: () => import('./pages/user/tariff/tariff.page').then(m => m.TariffPage),
-    canActivate: [authGuard]
+    canActivate: [authGuard, maintenanceGuard]
   },
   {
     path: 'profile',
     loadComponent: () => import('./pages/user/profile/profile.page').then(m => m.ProfilePage),
-    canActivate: [authGuard]
+    canActivate: [authGuard, maintenanceGuard]
   },
 
   // Admin routes

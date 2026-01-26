@@ -1,5 +1,6 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -10,7 +11,13 @@ import {
   IonButton,
   IonIcon,
   IonSpinner,
-  IonMenuButton
+  IonMenuButton,
+  IonToggle,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonTextarea,
+  IonText
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -21,10 +28,15 @@ import {
   trendingUpOutline,
   personOutline,
   downloadOutline,
-  calendarOutline
+  calendarOutline,
+  settingsOutline,
+  warningOutline,
+  checkmarkCircleOutline
 } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
 import { ApiService } from '@core/services/api.service';
+import { MaintenanceService } from '@core/services/maintenance.service';
+import { MaintenanceStatus } from '@core/models/user.model';
 
 interface DashboardStats {
   totalUsers: number;
@@ -40,6 +52,7 @@ interface DashboardStats {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -49,7 +62,13 @@ interface DashboardStats {
     IonButton,
     IonIcon,
     IonSpinner,
-    IonMenuButton
+    IonMenuButton,
+    IonToggle,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonTextarea,
+    IonText
   ],
   template: `
     <ion-header class="premium-header">
@@ -202,6 +221,94 @@ interface DashboardStats {
                     <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Maintenance Mode -->
+          <section class="maintenance-section">
+            <h2 class="section-title">
+              <ion-icon name="settings-outline"></ion-icon>
+              System Maintenance
+            </h2>
+            <div class="maintenance-card" [class.active]="maintenanceEnabled()">
+              <div class="maintenance-header">
+                <div class="maintenance-status">
+                  <div class="status-indicator" [class.active]="maintenanceEnabled()"></div>
+                  <div class="status-text">
+                    <span class="status-label">Maintenance Mode</span>
+                    <span class="status-value">{{ maintenanceEnabled() ? 'Active' : 'Inactive' }}</span>
+                  </div>
+                </div>
+                <ion-toggle
+                  [checked]="maintenanceEnabled()"
+                  (ionChange)="onMaintenanceToggle($event)"
+                  [disabled]="maintenanceLoading()"
+                  mode="ios"
+                ></ion-toggle>
+              </div>
+
+              @if (maintenanceEnabled()) {
+                <div class="maintenance-warning">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <span>Regular users cannot login while maintenance mode is active</span>
+                </div>
+              }
+
+              <div class="maintenance-form">
+                <div class="form-group">
+                  <label>Custom Message (optional)</label>
+                  <ion-textarea
+                    [(ngModel)]="maintenanceMessage"
+                    placeholder="Enter a message to display to users..."
+                    [autoGrow]="true"
+                    rows="2"
+                    class="maintenance-textarea"
+                  ></ion-textarea>
+                </div>
+                <div class="form-group">
+                  <label>Estimated End Time (optional)</label>
+                  <ion-input
+                    type="datetime-local"
+                    [(ngModel)]="maintenanceEndTime"
+                    class="maintenance-input"
+                  ></ion-input>
+                </div>
+              </div>
+
+              @if (maintenanceEnabled() && maintenanceStatus()) {
+                <div class="maintenance-info">
+                  <div class="info-item">
+                    <span class="info-label">Started</span>
+                    <span class="info-value">{{ formatDate(maintenanceStatus()?.startedAt) }}</span>
+                  </div>
+                  @if (maintenanceStatus()?.estimatedEnd) {
+                    <div class="info-item">
+                      <span class="info-label">Estimated End</span>
+                      <span class="info-value">{{ formatDate(maintenanceStatus()?.estimatedEnd) }}</span>
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="maintenance-actions">
+                <ion-button
+                  fill="solid"
+                  [color]="maintenanceEnabled() ? 'danger' : 'primary'"
+                  (click)="toggleMaintenance()"
+                  [disabled]="maintenanceLoading()"
+                  class="maintenance-btn"
+                >
+                  @if (maintenanceLoading()) {
+                    <ion-spinner name="crescent"></ion-spinner>
+                  } @else if (maintenanceEnabled()) {
+                    <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                    Disable Maintenance
+                  } @else {
+                    <ion-icon name="warning-outline" slot="start"></ion-icon>
+                    Enable Maintenance
+                  }
+                </ion-button>
               </div>
             </div>
           </section>
@@ -486,6 +593,199 @@ interface DashboardStats {
       margin: 0;
     }
 
+    /* Maintenance Section */
+    .maintenance-section {
+      margin-bottom: 32px;
+    }
+
+    .maintenance-section .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .maintenance-section .section-title ion-icon {
+      font-size: 22px;
+      color: #b8860b;
+    }
+
+    .maintenance-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .maintenance-card.active {
+      border-color: #dc2626;
+      background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+    }
+
+    .maintenance-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .maintenance-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+    }
+
+    .status-indicator.active {
+      background: #dc2626;
+      box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+      animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e3a5f;
+    }
+
+    .maintenance-card.active .status-value {
+      color: #dc2626;
+    }
+
+    ion-toggle {
+      --track-background: #e2e8f0;
+      --track-background-checked: #dc2626;
+      --handle-background: #ffffff;
+      --handle-background-checked: #ffffff;
+    }
+
+    .maintenance-warning {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fef3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+
+    .maintenance-warning ion-icon {
+      font-size: 20px;
+      color: #856404;
+      flex-shrink: 0;
+    }
+
+    .maintenance-warning span {
+      font-size: 14px;
+      color: #856404;
+    }
+
+    .maintenance-form {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    .maintenance-textarea,
+    .maintenance-input {
+      --background: #f8fafc;
+      --border-radius: 8px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .maintenance-textarea:focus-within,
+    .maintenance-input:focus-within {
+      border-color: #1e3a5f;
+    }
+
+    .maintenance-info {
+      display: flex;
+      gap: 24px;
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e3a5f;
+    }
+
+    .maintenance-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .maintenance-btn {
+      --border-radius: 8px;
+      font-weight: 500;
+      min-width: 180px;
+    }
+
+    .maintenance-btn ion-spinner {
+      width: 20px;
+      height: 20px;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .admin-header {
@@ -507,6 +807,29 @@ interface DashboardStats {
       .actions-grid {
         grid-template-columns: 1fr;
       }
+
+      .maintenance-card {
+        padding: 20px 16px;
+      }
+
+      .maintenance-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .maintenance-info {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .maintenance-actions {
+        justify-content: stretch;
+      }
+
+      .maintenance-btn {
+        width: 100%;
+      }
     }
   `]
 })
@@ -514,9 +837,17 @@ export class AdminDashboardPage implements OnInit {
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
 
+  // Maintenance mode
+  maintenanceStatus = signal<MaintenanceStatus | null>(null);
+  maintenanceEnabled = signal(false);
+  maintenanceLoading = signal(false);
+  maintenanceMessage = '';
+  maintenanceEndTime = '';
+
   constructor(
     private authService: AuthService,
-    private api: ApiService
+    private api: ApiService,
+    private maintenanceService: MaintenanceService
   ) {
     addIcons({
       peopleOutline,
@@ -526,12 +857,16 @@ export class AdminDashboardPage implements OnInit {
       trendingUpOutline,
       personOutline,
       downloadOutline,
-      calendarOutline
+      calendarOutline,
+      settingsOutline,
+      warningOutline,
+      checkmarkCircleOutline
     });
   }
 
   ngOnInit(): void {
     this.loadStats();
+    this.loadMaintenanceStatus();
   }
 
   loadStats(): void {
@@ -544,6 +879,84 @@ export class AdminDashboardPage implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  loadMaintenanceStatus(): void {
+    this.maintenanceService.checkStatus().subscribe({
+      next: (status) => {
+        this.maintenanceStatus.set(status);
+        this.maintenanceEnabled.set(status.enabled);
+        this.maintenanceMessage = status.message || '';
+        if (status.estimatedEnd) {
+          const date = new Date(status.estimatedEnd);
+          this.maintenanceEndTime = this.formatDateTimeLocal(date);
+        }
+      }
+    });
+  }
+
+  onMaintenanceToggle(event: CustomEvent): void {
+    // Prevent toggle from changing immediately - we'll handle it via the button
+    event.preventDefault();
+  }
+
+  toggleMaintenance(): void {
+    const newStatus = !this.maintenanceEnabled();
+    this.maintenanceLoading.set(true);
+
+    const payload: { enabled: boolean; message?: string; estimatedEnd?: string } = {
+      enabled: newStatus
+    };
+
+    if (newStatus && this.maintenanceMessage.trim()) {
+      payload.message = this.maintenanceMessage.trim();
+    }
+
+    if (newStatus && this.maintenanceEndTime) {
+      payload.estimatedEnd = new Date(this.maintenanceEndTime).toISOString();
+    }
+
+    this.api.put<{ maintenance: MaintenanceStatus }>('admin/maintenance', payload).subscribe({
+      next: (response) => {
+        this.maintenanceEnabled.set(response.maintenance.enabled);
+        this.maintenanceStatus.set(response.maintenance);
+        this.maintenanceService.setStatus(response.maintenance);
+        this.maintenanceLoading.set(false);
+
+        if (!response.maintenance.enabled) {
+          this.maintenanceMessage = '';
+          this.maintenanceEndTime = '';
+        }
+      },
+      error: () => {
+        this.maintenanceLoading.set(false);
+      }
+    });
+  }
+
+  formatDate(dateStr: string | null | undefined): string {
+    if (!dateStr) return '-';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  }
+
+  formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   logout(): void {

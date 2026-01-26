@@ -49,3 +49,11 @@ export interface ApiResponse<T = any> {
   };
   message?: string;
 }
+
+export interface MaintenanceStatus {
+  enabled: boolean;
+  message: string;
+  startedAt?: string | null;
+  estimatedEnd?: string | null;
+  lastUpdated?: string | null;
+}

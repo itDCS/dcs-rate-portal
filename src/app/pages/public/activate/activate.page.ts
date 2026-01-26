@@ -36,9 +36,7 @@ import { AuthService } from '@core/services/auth.service';
         <ion-card class="auth-card">
           <ion-card-header>
             <div class="logo-container">
-              <span class="logo-dcs">DCS</span>
-              <span class="logo-divider"></span>
-              <span class="logo-text">Rate Portal</span>
+              <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="logo-img">
             </div>
             <ion-card-title>Account Activation</ion-card-title>
           </ion-card-header>
@@ -74,31 +72,12 @@ import { AuthService } from '@core/services/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
       margin-bottom: 24px;
     }
 
-    .logo-dcs {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: #1e3a5f;
-      letter-spacing: 2px;
-    }
-
-    .logo-divider {
-      width: 2px;
-      height: 28px;
-      background: linear-gradient(180deg, transparent, #b8860b, transparent);
-    }
-
-    .logo-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 3px;
+    .logo-img {
+      max-width: 200px;
+      height: auto;
     }
 
     .loading-state {
@@ -170,7 +149,7 @@ export class ActivatePage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Invalid or expired activation link.');
+        this.error.set(err.error?.error?.message || err.error?.message || 'Invalid or expired activation link.');
       }
     });
   }

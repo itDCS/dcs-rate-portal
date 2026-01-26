@@ -38,9 +38,7 @@ import {
         <nav class="navbar">
           <div class="nav-container">
             <div class="nav-logo">
-              <span class="logo-dcs">DCS</span>
-              <span class="logo-divider"></span>
-              <span class="logo-text">Rate Portal</span>
+              <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="logo-img">
             </div>
             <div class="nav-actions">
               <a [routerLink]="['/login']" class="nav-link">Sign In</a>
@@ -192,9 +190,7 @@ import {
         <footer class="footer">
           <div class="footer-content">
             <div class="footer-logo">
-              <span class="logo-dcs">DCS</span>
-              <span class="logo-divider"></span>
-              <span class="logo-text">Rate Portal</span>
+              <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="logo-img">
             </div>
             <p class="footer-text">
               &copy; {{ currentYear }} Del Corona & Scardigli USA Inc. All rights reserved.
@@ -237,28 +233,16 @@ import {
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 12px;
     }
 
-    .logo-dcs {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--ion-color-primary);
+    .nav-logo .logo-img {
+      max-width: 160px;
+      height: auto;
     }
 
-    .logo-divider {
-      width: 2px;
-      height: 24px;
-      background: linear-gradient(180deg, transparent, #b8860b, transparent);
-    }
-
-    .logo-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-color-secondary);
-      letter-spacing: 0.02em;
+    .footer-logo .logo-img {
+      max-width: 140px;
+      height: auto;
     }
 
     .nav-actions {

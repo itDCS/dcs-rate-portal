@@ -46,16 +46,20 @@ import { AuthService } from '@core/services/auth.service';
         </ion-buttons>
         <ion-title>
           <div class="header-logo">
-            <span class="logo-dcs">DCS</span>
-            <span class="logo-divider"></span>
-            <span class="logo-text">Rate Portal</span>
+            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
           </div>
         </ion-title>
         <ion-buttons slot="end">
-          <ion-button [routerLink]="['/profile']" class="header-btn">
-            <ion-icon slot="icon-only" name="person-outline"></ion-icon>
-          </ion-button>
-          <ion-button (click)="logout()" class="header-btn">
+          <div class="user-info" [routerLink]="['/profile']">
+            <div class="user-avatar">
+              <span class="avatar-initials">{{ initials() }}</span>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ fullName() }}</span>
+              <span class="user-role">{{ user()?.company }}</span>
+            </div>
+          </div>
+          <ion-button (click)="logout()" class="header-btn logout-btn">
             <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -157,34 +161,74 @@ import { AuthService } from '@core/services/auth.service';
     .header-logo {
       display: flex;
       align-items: center;
-      gap: 8px;
     }
 
-    .logo-dcs {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #1e3a5f;
-      letter-spacing: 1px;
+    .header-logo-img {
+      height: 32px;
+      width: auto;
     }
 
-    .logo-divider {
-      width: 1px;
-      height: 18px;
-      background: linear-gradient(180deg, transparent, #b8860b, transparent);
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      margin-right: 4px;
     }
 
-    .logo-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      color: #64748b;
+    .user-info:hover {
+      background: #f1f5f9;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-initials {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
       text-transform: uppercase;
-      letter-spacing: 2px;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e3a5f;
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.2;
     }
 
     .header-btn {
       --color: #1e3a5f;
+    }
+
+    .logout-btn {
+      --color: #64748b;
+    }
+
+    .logout-btn:hover {
+      --color: #ef4444;
     }
 
     /* Welcome Section */
@@ -479,11 +523,33 @@ import { AuthService } from '@core/services/auth.service';
         width: 100%;
         justify-content: center;
       }
+
+      .header-logo-img {
+        height: 28px;
+      }
+
+      .user-details {
+        display: none;
+      }
+
+      .user-info {
+        padding: 4px;
+      }
     }
   `]
 })
 export class DashboardPage {
-  firstName = computed(() => this.authService.user()?.firstName || 'User');
+  user = computed(() => this.authService.user());
+  firstName = computed(() => this.user()?.firstName || 'User');
+  fullName = computed(() => {
+    const u = this.user();
+    return u ? `${u.firstName} ${u.lastName}` : 'User';
+  });
+  initials = computed(() => {
+    const u = this.user();
+    if (!u) return '?';
+    return (u.firstName?.[0] || '') + (u.lastName?.[0] || '');
+  });
 
   constructor(private authService: AuthService) {
     addIcons({

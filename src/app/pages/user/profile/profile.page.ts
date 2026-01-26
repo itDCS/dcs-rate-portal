@@ -16,8 +16,9 @@ import {
   IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { personOutline, mailOutline, businessOutline, callOutline, checkmarkCircle, shieldCheckmarkOutline } from 'ionicons/icons';
+import { personOutline, mailOutline, businessOutline, callOutline, checkmarkCircle, shieldCheckmarkOutline, logOutOutline } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '@core/services/api.service';
 import { User } from '@core/models/user.model';
 
@@ -27,6 +28,7 @@ import { User } from '@core/models/user.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -45,10 +47,27 @@ import { User } from '@core/models/user.model';
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button defaultHref="/dashboard" color="primary"></ion-back-button>
+          <div class="header-logo">
+            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
+          </div>
         </ion-buttons>
         <ion-title>
           <span class="header-title">My Profile</span>
         </ion-title>
+        <ion-buttons slot="end">
+          <div class="header-user-info" [routerLink]="['/dashboard']">
+            <div class="header-user-avatar">
+              <span class="header-avatar-initials">{{ initials() }}</span>
+            </div>
+            <div class="header-user-details">
+              <span class="header-user-name">{{ fullName() }}</span>
+              <span class="header-user-role">{{ user()?.company }}</span>
+            </div>
+          </div>
+          <ion-button (click)="logout()" class="header-btn logout-btn">
+            <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
@@ -207,11 +226,84 @@ import { User } from '@core/models/user.model';
       --border-width: 0 0 1px 0;
     }
 
+    .header-logo {
+      display: flex;
+      align-items: center;
+      margin-left: 8px;
+    }
+
+    .header-logo-img {
+      height: 28px;
+      width: auto;
+    }
+
     .header-title {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 18px;
       font-weight: 600;
       color: #1e3a5f;
+    }
+
+    .header-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .header-user-info:hover {
+      background: #f1f5f9;
+    }
+
+    .header-user-avatar {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-avatar-initials {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .header-user-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e3a5f;
+      line-height: 1.2;
+    }
+
+    .header-user-role {
+      font-size: 10px;
+      color: #64748b;
+      line-height: 1.2;
+    }
+
+    .header-btn {
+      --color: #1e3a5f;
+    }
+
+    .logout-btn {
+      --color: #64748b;
+    }
+
+    .logout-btn:hover {
+      --color: #ef4444;
     }
 
     /* Profile Container */
@@ -477,6 +569,23 @@ import { User } from '@core/models/user.model';
       .info-row {
         grid-template-columns: 1fr;
       }
+
+      .header-logo {
+        display: none;
+      }
+
+      .header-user-details {
+        display: none;
+      }
+
+      .header-user-info {
+        padding: 4px;
+      }
+
+      .header-user-avatar {
+        width: 28px;
+        height: 28px;
+      }
     }
   `]
 })
@@ -494,6 +603,11 @@ export class ProfilePage {
     return (user.firstName?.[0] || '') + (user.lastName?.[0] || '');
   });
 
+  fullName = computed(() => {
+    const u = this.user();
+    return u ? `${u.firstName} ${u.lastName}` : 'User';
+  });
+
   memberSince = computed(() => {
     const date = this.user()?.createdAt;
     return date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '-';
@@ -509,7 +623,7 @@ export class ProfilePage {
     private authService: AuthService,
     private api: ApiService
   ) {
-    addIcons({ personOutline, mailOutline, businessOutline, callOutline, checkmarkCircle, shieldCheckmarkOutline });
+    addIcons({ personOutline, mailOutline, businessOutline, callOutline, checkmarkCircle, shieldCheckmarkOutline, logOutOutline });
 
     const user = this.authService.user();
     this.form = this.fb.group({
@@ -538,8 +652,12 @@ export class ProfilePage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Failed to update profile. Please try again.');
+        this.error.set(err.error?.error?.message || err.error?.message || 'Failed to update profile. Please try again.');
       }
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
