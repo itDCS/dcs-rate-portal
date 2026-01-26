@@ -2,6 +2,10 @@
 export * from './services/auth.service';
 export * from './services/api.service';
 export * from './services/storage.service';
+export * from './services/confirm-dialog.service';
+
+// Components
+export * from './components/confirm-dialog.component';
 
 // Guards
 export * from './guards/auth.guard';

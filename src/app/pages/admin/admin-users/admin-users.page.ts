@@ -17,8 +17,9 @@ import {
   IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline } from 'ionicons/icons';
+import { eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline, sendOutline } from 'ionicons/icons';
 import { ApiService } from '@core/services/api.service';
+import { ConfirmDialogService } from '@core/services/confirm-dialog.service';
 import { User } from '@core/models/user.model';
 
 @Component({
@@ -197,6 +198,11 @@ import { User } from '@core/models/user.model';
                         <button class="action-btn send-creds" (click)="openSendCredentialsModal(user)" title="Send credentials">
                           <ion-icon name="mail-outline"></ion-icon>
                         </button>
+                        @if (!user.isActive) {
+                          <button class="action-btn resend-activation" (click)="resendActivation(user)" title="Resend activation email">
+                            <ion-icon name="send-outline"></ion-icon>
+                          </button>
+                        }
                         @if (user.isEnabled) {
                           <button class="action-btn disable" (click)="disableUser(user)" title="Disable user">
                             <ion-icon name="close-circle"></ion-icon>
@@ -768,6 +774,16 @@ import { User } from '@core/models/user.model';
       color: #ffffff;
     }
 
+    .action-btn.resend-activation {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .action-btn.resend-activation:hover {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
     .add-btn {
       --color: #16a34a;
     }
@@ -1059,8 +1075,11 @@ export class AdminUsersPage implements OnInit {
     skipActivation: true
   };
 
-  constructor(private api: ApiService) {
-    addIcons({ eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline });
+  constructor(
+    private api: ApiService,
+    private confirmDialog: ConfirmDialogService
+  ) {
+    addIcons({ eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline, sendOutline });
   }
 
   ngOnInit(): void {
@@ -1271,5 +1290,42 @@ export class AdminUsersPage implements OnInit {
         this.sendCredsError.set(err.error?.error?.message || 'Failed to send credentials');
       }
     });
+  }
+
+  async resendActivation(user: User): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Resend Activation Email',
+      message: `Send a new activation email to <strong>${user.email}</strong>?<br><br>The previous activation link will be invalidated.`,
+      confirmText: 'Send Email',
+      cancelText: 'Cancel',
+      type: 'info',
+      icon: 'send-outline'
+    });
+
+    if (confirmed) {
+      this.confirmDialog.setLoading(true);
+      this.api.post(`admin/users/${user.id}/resend-activation`, {}).subscribe({
+        next: async () => {
+          this.confirmDialog.setLoading(false);
+          await this.confirmDialog.confirm({
+            title: 'Email Sent',
+            message: `Activation email has been sent to <strong>${user.email}</strong>`,
+            confirmText: 'OK',
+            cancelText: 'Close',
+            type: 'success'
+          });
+        },
+        error: async (err) => {
+          this.confirmDialog.setLoading(false);
+          await this.confirmDialog.confirm({
+            title: 'Error',
+            message: err.error?.error?.message || 'Failed to resend activation email',
+            confirmText: 'OK',
+            cancelText: 'Close',
+            type: 'danger'
+          });
+        }
+      });
+    }
   }
 }

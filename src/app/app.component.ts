@@ -25,6 +25,7 @@ import {
   shieldOutline
 } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
+import { ConfirmDialogComponent } from '@core/components/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -42,7 +43,8 @@ import { AuthService } from '@core/services/auth.service';
     IonItem,
     IonIcon,
     IonLabel,
-    IonMenuToggle
+    IonMenuToggle,
+    ConfirmDialogComponent
   ],
   template: `
     <ion-app>
@@ -129,6 +131,9 @@ import { AuthService } from '@core/services/auth.service';
       }
 
       <ion-router-outlet id="main-content"></ion-router-outlet>
+
+      <!-- Global Confirm Dialog -->
+      <app-confirm-dialog></app-confirm-dialog>
     </ion-app>
   `,
   styles: [`

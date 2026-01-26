@@ -173,17 +173,16 @@ interface AccessLog {
               <table class="premium-table">
                 <thead>
                   <tr>
-                    <th>Date & Time</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>IP Address</th>
-                    <th>Status</th>
-                    <th>Details</th>
+                    <th class="th-datetime">Timestamp</th>
+                    <th class="th-user">User</th>
+                    <th class="th-action">Action</th>
+                    <th class="th-status">Status</th>
+                    <th class="th-details">Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (log of logs(); track log.id) {
-                    <tr>
+                    <tr [class.row-failed]="!log.success">
                       <td>
                         <div class="datetime-cell">
                           <span class="date">{{ formatDate(log.createdAt) }}</span>
@@ -193,43 +192,51 @@ interface AccessLog {
                       <td>
                         <div class="user-cell">
                           @if (log.userEmail) {
-                            <div class="user-avatar">
+                            <div class="user-avatar" [class]="getAvatarClass(log.action)">
                               {{ getInitials(log.userEmail) }}
                             </div>
-                            <span class="user-email">{{ log.userEmail }}</span>
+                            <div class="user-info">
+                              <span class="user-email">{{ log.userEmail }}</span>
+                              <span class="user-ip">{{ log.ipAddress }}</span>
+                            </div>
                           } @else {
-                            <span class="anonymous">Anonymous</span>
+                            <div class="user-avatar anonymous-avatar">?</div>
+                            <div class="user-info">
+                              <span class="anonymous">Anonymous</span>
+                              <span class="user-ip">{{ log.ipAddress }}</span>
+                            </div>
                           }
                         </div>
                       </td>
                       <td>
-                        <span class="action-badge" [class]="getActionClass(log.action)">
-                          {{ formatAction(log.action) }}
-                        </span>
-                      </td>
-                      <td>
-                        <div class="ip-cell">
-                          <ion-icon name="location-outline"></ion-icon>
-                          <span>{{ log.ipAddress }}</span>
+                        <div class="action-cell">
+                          <span class="action-badge" [class]="getActionClass(log.action)">
+                            <span class="action-icon">{{ getActionIcon(log.action) }}</span>
+                            {{ formatAction(log.action) }}
+                          </span>
                         </div>
                       </td>
                       <td>
                         @if (log.success) {
-                          <span class="status-badge success">
-                            <span class="status-dot"></span>
+                          <span class="status-pill success">
+                            <span class="status-indicator"></span>
                             Success
                           </span>
                         } @else {
-                          <span class="status-badge failed">
-                            <span class="status-dot"></span>
+                          <span class="status-pill failed">
+                            <span class="status-indicator"></span>
                             Failed
                           </span>
                         }
                       </td>
                       <td>
-                        <span class="details-cell" [title]="log.details || ''">
-                          {{ log.details || '-' }}
-                        </span>
+                        @if (log.details) {
+                          <div class="details-cell" [title]="log.details">
+                            {{ log.details }}
+                          </div>
+                        } @else {
+                          <span class="no-details">—</span>
+                        }
                       </td>
                     </tr>
                   }
@@ -491,7 +498,7 @@ interface AccessLog {
 
     .premium-table {
       width: 100%;
-      min-width: 900px;
+      min-width: 850px;
       border-collapse: collapse;
     }
 
@@ -529,21 +536,39 @@ interface AccessLog {
       color: #1e3a5f;
     }
 
+    /* Table Headers */
+    .th-datetime { width: 140px; }
+    .th-user { min-width: 280px; }
+    .th-action { width: 180px; }
+    .th-status { width: 100px; }
+    .th-details { min-width: 200px; }
+
+    /* Row States */
+    .row-failed {
+      background-color: #fef2f2 !important;
+    }
+
+    .row-failed:hover {
+      background-color: #fee2e2 !important;
+    }
+
     /* DateTime Cell */
     .datetime-cell {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .datetime-cell .date {
-      font-weight: 500;
+      font-weight: 600;
+      font-size: 13px;
       color: #1e3a5f;
     }
 
     .datetime-cell .time {
       font-size: 12px;
       color: #64748b;
+      font-family: 'SF Mono', Consolas, monospace;
     }
 
     /* User Cell */
@@ -554,40 +579,76 @@ interface AccessLog {
     }
 
     .user-avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
-      border-radius: 50%;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: #ffffff;
       text-transform: uppercase;
       flex-shrink: 0;
     }
 
+    .user-avatar.avatar-login { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+    .user-avatar.avatar-failed { background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); }
+    .user-avatar.avatar-register { background: linear-gradient(135deg, #166534 0%, #22c55e 100%); }
+    .user-avatar.avatar-admin { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); }
+    .user-avatar.avatar-download { background: linear-gradient(135deg, #b8860b 0%, #d4a846 100%); }
+    .user-avatar.anonymous-avatar { background: #94a3b8; }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .user-email {
       font-size: 14px;
+      font-weight: 500;
       color: #1e3a5f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-ip {
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: 'SF Mono', Consolas, monospace;
     }
 
     .anonymous {
       font-size: 14px;
-      color: #94a3b8;
+      color: #64748b;
       font-style: italic;
     }
 
-    /* Action Badge */
+    /* Action Cell */
+    .action-cell {
+      display: flex;
+      align-items: center;
+    }
+
     .action-badge {
-      display: inline-block;
-      padding: 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .action-icon {
+      font-size: 12px;
     }
 
     .action-badge.login {
@@ -601,8 +662,8 @@ interface AccessLog {
     }
 
     .action-badge.register {
-      background: #dcfce7;
-      color: #166534;
+      background: #d1fae5;
+      color: #065f46;
     }
 
     .action-badge.activate {
@@ -610,14 +671,27 @@ interface AccessLog {
       color: #92400e;
     }
 
-    .action-badge.password-reset {
+    .action-badge.password-reset,
+    .action-badge.password-reset-request {
       background: #f3e8ff;
       color: #6b21a8;
     }
 
-    .action-badge.tariff-download {
-      background: linear-gradient(135deg, rgba(184, 134, 11, 0.15) 0%, rgba(212, 160, 23, 0.15) 100%);
-      color: #92400e;
+    .action-badge.send-credentials {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .action-badge.tariff-download,
+    .action-badge.tariff-view {
+      background: #fef9c3;
+      color: #a16207;
+    }
+
+    .action-badge.disable,
+    .action-badge.enable {
+      background: #e0e7ff;
+      color: #3730a3;
     }
 
     .action-badge.default {
@@ -625,56 +699,60 @@ interface AccessLog {
       color: #475569;
     }
 
-    /* IP Cell */
-    .ip-cell {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #64748b;
-      font-size: 13px;
-    }
-
-    .ip-cell ion-icon {
-      font-size: 16px;
-      color: #94a3b8;
-    }
-
-    /* Status Badge */
-    .status-badge {
+    /* Status Pill */
+    .status-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    .status-badge.success {
+    .status-pill.success {
       background: #dcfce7;
       color: #166534;
     }
 
-    .status-badge.failed {
+    .status-pill.failed {
       background: #fee2e2;
       color: #991b1b;
     }
 
-    .status-dot {
+    .status-indicator {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: currentColor;
+      animation: pulse 2s infinite;
+    }
+
+    .status-pill.success .status-indicator {
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     /* Details Cell */
     .details-cell {
-      max-width: 200px;
+      max-width: 250px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       color: #64748b;
-      font-size: 13px;
+      font-size: 12px;
+      cursor: help;
+    }
+
+    .no-details {
+      color: #cbd5e1;
+      font-size: 14px;
     }
 
     /* Responsive */
@@ -852,9 +930,40 @@ export class AdminLogsPage implements OnInit {
       'REGISTER': 'register',
       'ACTIVATE': 'activate',
       'PASSWORD_RESET': 'password-reset',
-      'TARIFF_DOWNLOAD': 'tariff-download'
+      'PASSWORD_RESET_REQUEST': 'password-reset-request',
+      'SEND_CREDENTIALS': 'send-credentials',
+      'TARIFF_DOWNLOAD': 'tariff-download',
+      'TARIFF_VIEW': 'tariff-view',
+      'DISABLE': 'disable',
+      'ENABLE': 'enable'
     };
     return classMap[action] || 'default';
+  }
+
+  getActionIcon(action: string): string {
+    const iconMap: Record<string, string> = {
+      'LOGIN': '🔓',
+      'LOGIN_FAILED': '🚫',
+      'REGISTER': '📝',
+      'ACTIVATE': '✅',
+      'PASSWORD_RESET': '🔑',
+      'PASSWORD_RESET_REQUEST': '📧',
+      'SEND_CREDENTIALS': '📨',
+      'TARIFF_DOWNLOAD': '📥',
+      'TARIFF_VIEW': '👁️',
+      'DISABLE': '🔒',
+      'ENABLE': '🔓'
+    };
+    return iconMap[action] || '📋';
+  }
+
+  getAvatarClass(action: string): string {
+    if (action === 'LOGIN_FAILED') return 'avatar-failed';
+    if (action === 'LOGIN') return 'avatar-login';
+    if (action === 'REGISTER' || action === 'ACTIVATE') return 'avatar-register';
+    if (action.includes('TARIFF')) return 'avatar-download';
+    if (action.includes('ADMIN') || action === 'SEND_CREDENTIALS' || action === 'DISABLE' || action === 'ENABLE') return 'avatar-admin';
+    return '';
   }
 
   getInitials(email: string): string {
