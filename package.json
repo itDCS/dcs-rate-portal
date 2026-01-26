@@ -35,12 +35,8 @@
     "@angular-devkit/build-angular": "^17.0.0",
     "@angular/cli": "^17.0.0",
     "@angular/compiler-cli": "^17.0.0",
-    "@rollup/rollup-win32-x64-msvc": "^4.56.0",
     "@types/node": "^18.19.0",
     "dotenv": "^17.2.3",
     "typescript": "~5.4.0"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.56.0"
   }
 }
