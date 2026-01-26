@@ -70,9 +70,7 @@ import { AuthService } from '@core/services/auth.service';
         <!-- Document Header -->
         <header class="document-header">
           <div class="logo-mark">
-            <span class="logo-dcs">DCS</span>
-            <span class="logo-divider"></span>
-            <span class="logo-text">USA</span>
+            <img src="assets/images/dcs-logo.png" alt="DCS Group" class="document-logo">
           </div>
           <h1 class="document-title">PUBLIC RULES TARIFF</h1>
           <p class="document-code">(DCST 001)</p>
@@ -660,30 +658,12 @@ import { AuthService } from '@core/services/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
       margin-bottom: 24px;
     }
 
-    .logo-dcs {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 48px;
-      font-weight: 700;
-      color: #1e3a5f;
-      letter-spacing: 4px;
-    }
-
-    .logo-divider {
-      width: 2px;
-      height: 40px;
-      background: linear-gradient(180deg, transparent, #b8860b, transparent);
-    }
-
-    .logo-text {
-      font-family: 'Inter', sans-serif;
-      font-size: 24px;
-      font-weight: 500;
-      color: #64748b;
-      letter-spacing: 6px;
+    .document-logo {
+      max-width: 200px;
+      height: auto;
     }
 
     .document-title {
@@ -1224,12 +1204,8 @@ import { AuthService } from '@core/services/auth.service';
         grid-template-columns: 1fr;
       }
 
-      .logo-dcs {
-        font-size: 36px;
-      }
-
-      .logo-text {
-        font-size: 18px;
+      .document-logo {
+        max-width: 160px;
       }
 
       .header-logo {

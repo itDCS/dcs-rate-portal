@@ -17,7 +17,7 @@ import {
   IonRefresherContent
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline } from 'ionicons/icons';
+import { eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline } from 'ionicons/icons';
 import { ApiService } from '@core/services/api.service';
 import { User } from '@core/models/user.model';
 
@@ -55,6 +55,9 @@ import { User } from '@core/models/user.model';
           </div>
         </ion-title>
         <ion-buttons slot="end">
+          <ion-button (click)="openNewUserModal()" class="header-btn add-btn">
+            <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+          </ion-button>
           <ion-button (click)="loadUsers()" class="header-btn">
             <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
           </ion-button>
@@ -188,6 +191,12 @@ import { User } from '@core/models/user.model';
                         <button class="action-btn view" [routerLink]="['/admin/users', user.id]" title="View details">
                           <ion-icon name="eye-outline"></ion-icon>
                         </button>
+                        <button class="action-btn clone" (click)="openCloneModal(user)" title="Clone user">
+                          <ion-icon name="copy-outline"></ion-icon>
+                        </button>
+                        <button class="action-btn send-creds" (click)="openSendCredentialsModal(user)" title="Send credentials">
+                          <ion-icon name="mail-outline"></ion-icon>
+                        </button>
                         @if (user.isEnabled) {
                           <button class="action-btn disable" (click)="disableUser(user)" title="Disable user">
                             <ion-icon name="close-circle"></ion-icon>
@@ -210,6 +219,121 @@ import { User } from '@core/models/user.model';
           </div>
         }
       </div>
+
+      <!-- Create/Clone User Modal -->
+      @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h2>{{ isCloning() ? 'Clone User' : 'New User' }}</h2>
+              <button class="close-btn" (click)="closeModal()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name *</label>
+                  <input type="text" [(ngModel)]="newUser.firstName" placeholder="First name" />
+                </div>
+                <div class="form-group">
+                  <label>Last Name *</label>
+                  <input type="text" [(ngModel)]="newUser.lastName" placeholder="Last name" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Email *</label>
+                <input type="email" [(ngModel)]="newUser.email" placeholder="email@example.com" />
+              </div>
+              <div class="form-group">
+                <label>Password *</label>
+                <input type="password" [(ngModel)]="newUser.password" placeholder="Minimum 8 characters" />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Company *</label>
+                  <input type="text" [(ngModel)]="newUser.company" placeholder="Company name" />
+                </div>
+                <div class="form-group">
+                  <label>Country *</label>
+                  <input type="text" [(ngModel)]="newUser.country" placeholder="Country" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Phone</label>
+                  <input type="text" [(ngModel)]="newUser.phone" placeholder="Phone number" />
+                </div>
+                <div class="form-group">
+                  <label>Role</label>
+                  <select [(ngModel)]="newUser.role">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" [(ngModel)]="newUser.skipActivation" />
+                  Skip email activation (activate immediately)
+                </label>
+              </div>
+              @if (modalError()) {
+                <div class="error-message">{{ modalError() }}</div>
+              }
+            </div>
+            <div class="modal-footer">
+              <button class="btn-cancel" (click)="closeModal()">Cancel</button>
+              <button class="btn-create" (click)="createUser()" [disabled]="saving()">
+                @if (saving()) {
+                  <ion-spinner name="crescent"></ion-spinner>
+                } @else {
+                  {{ isCloning() ? 'Clone User' : 'Create User' }}
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Send Credentials Modal -->
+      @if (showSendCredsModal()) {
+        <div class="modal-overlay" (click)="closeSendCredsModal()">
+          <div class="modal-content send-creds-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h2>Send Credentials</h2>
+              <button class="close-btn" (click)="closeSendCredsModal()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p class="send-creds-info">
+                Send login credentials to <strong>{{ sendCredsUser()?.email }}</strong>
+              </p>
+              <p class="send-creds-note">
+                A new random password will be generated and sent to the user's email address.
+              </p>
+              @if (sendCredsError()) {
+                <div class="error-message">{{ sendCredsError() }}</div>
+              }
+              @if (sendCredsSuccess()) {
+                <div class="success-message">Credentials sent successfully!</div>
+              }
+            </div>
+            <div class="modal-footer">
+              <button class="btn-cancel" (click)="closeSendCredsModal()">Cancel</button>
+              <button class="btn-create btn-send" (click)="sendCredentials()" [disabled]="sendingCreds()">
+                @if (sendingCreds()) {
+                  <ion-spinner name="crescent"></ion-spinner>
+                } @else {
+                  <ion-icon name="mail-outline"></ion-icon>
+                  Send Credentials
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </ion-content>
   `,
   styles: [`
@@ -624,6 +748,252 @@ import { User } from '@core/models/user.model';
       color: #ffffff;
     }
 
+    .action-btn.clone {
+      background: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .action-btn.clone:hover {
+      background: #0284c7;
+      color: #ffffff;
+    }
+
+    .action-btn.send-creds {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .action-btn.send-creds:hover {
+      background: #d97706;
+      color: #ffffff;
+    }
+
+    .add-btn {
+      --color: #16a34a;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .modal-header h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin: 0;
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .close-btn ion-icon {
+      font-size: 20px;
+      color: #64748b;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1e3a5f;
+      background: #ffffff;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #1e3a5f;
+    }
+
+    .form-group input::placeholder {
+      color: #94a3b8;
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .success-message {
+      background: #dcfce7;
+      color: #166534;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .send-creds-info {
+      font-size: 14px;
+      color: #475569;
+      margin: 0 0 20px;
+    }
+
+    .send-creds-info strong {
+      color: #1e3a5f;
+    }
+
+    .send-creds-note {
+      font-size: 12px;
+      color: #94a3b8;
+      margin: 8px 0 0;
+      font-style: italic;
+    }
+
+    .btn-send {
+      background: #d97706 !important;
+    }
+
+    .btn-send:hover:not(:disabled) {
+      background: #b45309 !important;
+    }
+
+    .btn-send ion-icon {
+      font-size: 18px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .btn-cancel, .btn-create {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cancel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+    }
+
+    .btn-cancel:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .btn-create {
+      background: #1e3a5f;
+      border: none;
+      color: #ffffff;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-create:hover:not(:disabled) {
+      background: #2d4a6f;
+    }
+
+    .btn-create:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-create ion-spinner {
+      width: 18px;
+      height: 18px;
+    }
+
     /* Table Footer */
     .table-footer {
       margin-top: 16px;
@@ -664,8 +1034,33 @@ export class AdminUsersPage implements OnInit {
   searchQuery = '';
   filter = 'all';
 
+  // Modal state
+  showModal = signal(false);
+  isCloning = signal(false);
+  saving = signal(false);
+  modalError = signal('');
+
+  // Send credentials modal state
+  showSendCredsModal = signal(false);
+  sendCredsUser = signal<User | null>(null);
+  sendingCreds = signal(false);
+  sendCredsError = signal('');
+  sendCredsSuccess = signal(false);
+
+  newUser = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    company: '',
+    country: '',
+    phone: '',
+    role: 'user',
+    skipActivation: true
+  };
+
   constructor(private api: ApiService) {
-    addIcons({ eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline });
+    addIcons({ eyeOutline, checkmarkCircle, closeCircle, refreshOutline, peopleOutline, searchOutline, copyOutline, addOutline, closeOutline, mailOutline });
   }
 
   ngOnInit(): void {
@@ -766,5 +1161,115 @@ export class AdminUsersPage implements OnInit {
   formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  openNewUserModal(): void {
+    this.isCloning.set(false);
+    this.resetForm();
+    this.showModal.set(true);
+  }
+
+  openCloneModal(user: User): void {
+    this.isCloning.set(true);
+    this.newUser = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: '', // Must be unique
+      password: '',
+      company: user.company,
+      country: user.country,
+      phone: user.phone || '',
+      role: user.role || 'user',
+      skipActivation: true
+    };
+    this.modalError.set('');
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
+    this.modalError.set('');
+  }
+
+  resetForm(): void {
+    this.newUser = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      company: '',
+      country: '',
+      phone: '',
+      role: 'user',
+      skipActivation: true
+    };
+    this.modalError.set('');
+  }
+
+  createUser(): void {
+    // Validation
+    if (!this.newUser.firstName || !this.newUser.lastName || !this.newUser.email ||
+        !this.newUser.password || !this.newUser.company || !this.newUser.country) {
+      this.modalError.set('Please fill in all required fields');
+      return;
+    }
+
+    if (this.newUser.password.length < 8) {
+      this.modalError.set('Password must be at least 8 characters');
+      return;
+    }
+
+    this.saving.set(true);
+    this.modalError.set('');
+
+    this.api.post<{ user: User }>('admin/users', this.newUser).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.closeModal();
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.modalError.set(err.error?.error?.message || 'Failed to create user');
+      }
+    });
+  }
+
+  openSendCredentialsModal(user: User): void {
+    this.sendCredsUser.set(user);
+    this.sendCredsError.set('');
+    this.sendCredsSuccess.set(false);
+    this.showSendCredsModal.set(true);
+  }
+
+  closeSendCredsModal(): void {
+    this.showSendCredsModal.set(false);
+    this.sendCredsUser.set(null);
+    this.sendCredsError.set('');
+    this.sendCredsSuccess.set(false);
+  }
+
+  sendCredentials(): void {
+    const user = this.sendCredsUser();
+    if (!user) return;
+
+    this.sendingCreds.set(true);
+    this.sendCredsError.set('');
+    this.sendCredsSuccess.set(false);
+
+    this.api.post(`admin/users/${user.id}/send-credentials`, {}).subscribe({
+      next: () => {
+        this.sendingCreds.set(false);
+        this.sendCredsSuccess.set(true);
+        // Close modal after a brief delay to show success
+        setTimeout(() => {
+          this.closeSendCredsModal();
+        }, 1500);
+      },
+      error: (err) => {
+        this.sendingCreds.set(false);
+        this.sendCredsError.set(err.error?.error?.message || 'Failed to send credentials');
+      }
+    });
   }
 }

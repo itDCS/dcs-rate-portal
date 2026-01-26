@@ -11,7 +11,6 @@ import {
 import { addIcons } from 'ionicons';
 import {
   checkmarkCircleOutline,
-  documentTextOutline,
   shieldCheckmarkOutline,
   flashOutline,
   boatOutline,
@@ -91,7 +90,7 @@ import {
 
           <ion-grid class="features-grid">
             <ion-row>
-              <ion-col size="12" sizeMd="6" sizeLg="3">
+              <ion-col size="12" sizeMd="6" sizeLg="4">
                 <div class="feature-card">
                   <div class="feature-icon">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
@@ -100,7 +99,7 @@ import {
                   <p>No hidden fees. Register once and access our complete tariff database at no cost.</p>
                 </div>
               </ion-col>
-              <ion-col size="12" sizeMd="6" sizeLg="3">
+              <ion-col size="12" sizeMd="6" sizeLg="4">
                 <div class="feature-card">
                   <div class="feature-icon">
                     <ion-icon name="flash-outline"></ion-icon>
@@ -109,16 +108,7 @@ import {
                   <p>Quick email verification. Start accessing rates within minutes of registration.</p>
                 </div>
               </ion-col>
-              <ion-col size="12" sizeMd="6" sizeLg="3">
-                <div class="feature-card">
-                  <div class="feature-icon">
-                    <ion-icon name="document-text-outline"></ion-icon>
-                  </div>
-                  <h3>PDF Download</h3>
-                  <p>Download complete tariff documents in professional PDF format for offline reference.</p>
-                </div>
-              </ion-col>
-              <ion-col size="12" sizeMd="6" sizeLg="3">
+              <ion-col size="12" sizeMd="6" sizeLg="4">
                 <div class="feature-card">
                   <div class="feature-icon">
                     <ion-icon name="globe-outline"></ion-icon>
@@ -672,7 +662,6 @@ export class LandingPage {
   constructor() {
     addIcons({
       checkmarkCircleOutline,
-      documentTextOutline,
       shieldCheckmarkOutline,
       flashOutline,
       boatOutline,
