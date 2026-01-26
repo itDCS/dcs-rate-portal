@@ -298,19 +298,46 @@ export class LoginPage {
   onSubmit(): void {
     if (this.form.invalid) return;
 
+    const submitStart = performance.now();
+    console.log('========================================');
+    console.log('[LoginPage] SUBMIT START');
+    console.log('[LoginPage] Email:', this.form.value.email);
+    console.log('[LoginPage] Time:', new Date().toISOString());
+    console.log('========================================');
+
     this.loading.set(true);
     this.error.set(null);
 
     this.authService.login(this.form.value).subscribe({
       next: (response) => {
+        const authTime = performance.now() - submitStart;
+        console.log(`[LoginPage] Auth completed: ${authTime.toFixed(2)}ms`);
+
         this.loading.set(false);
-        if (response.user.isAdmin) {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
+
+        const navStart = performance.now();
+        const targetRoute = response.user.isAdmin ? '/admin' : '/dashboard';
+        console.log(`[LoginPage] Navigating to: ${targetRoute}`);
+
+        this.router.navigate([targetRoute]).then(() => {
+          const totalTime = performance.now() - submitStart;
+          console.log('========================================');
+          console.log('[LoginPage] SUBMIT SUCCESS');
+          console.log(`[LoginPage] Navigation time: ${(performance.now() - navStart).toFixed(2)}ms`);
+          console.log(`[LoginPage] Total time: ${totalTime.toFixed(2)}ms`);
+          console.log('========================================');
+        });
       },
       error: (err) => {
+        const totalTime = performance.now() - submitStart;
+        console.log('========================================');
+        console.log('[LoginPage] SUBMIT ERROR');
+        console.log('[LoginPage] Status:', err.status);
+        console.log('[LoginPage] Error code:', err.error?.error?.code);
+        console.log('[LoginPage] Error message:', err.error?.error?.message || err.message);
+        console.log(`[LoginPage] Total time: ${totalTime.toFixed(2)}ms`);
+        console.log('========================================');
+
         this.loading.set(false);
 
         // Handle maintenance mode (503)
