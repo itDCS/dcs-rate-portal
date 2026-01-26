@@ -9,7 +9,11 @@ import { environment } from '@env/environment';
 export class ApiService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    console.log('=== API SERVICE INITIALIZED ===');
+    console.log('Base URL:', this.baseUrl);
+    console.log('Environment:', environment);
+  }
 
   get<T>(endpoint: string, params?: any): Observable<T> {
     let httpParams = new HttpParams();
@@ -20,11 +24,15 @@ export class ApiService {
         }
       });
     }
-    return this.http.get<T>(`${this.baseUrl}/${endpoint}`, { params: httpParams });
+    const url = `${this.baseUrl}/${endpoint}`;
+    console.log('API GET:', url);
+    return this.http.get<T>(url, { params: httpParams });
   }
 
   post<T>(endpoint: string, body: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, body);
+    const url = `${this.baseUrl}/${endpoint}`;
+    console.log('API POST:', url);
+    return this.http.post<T>(url, body);
   }
 
   put<T>(endpoint: string, body?: any): Observable<T> {
