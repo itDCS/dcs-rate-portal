@@ -1,0 +1,42 @@
+# Netlify Configuration for DCS Rate Portal
+
+[build]
+  # Build command - runs set-env.js before building via prebuild script
+  command = "npm run build"
+  # Output directory for Angular 17 with browser folder
+  publish = "dist/dcs-rate-portal/browser"
+
+# Environment variables for production build
+# Set API_URL in Netlify dashboard: Site settings > Environment variables
+# Example: API_URL = "https://api.delcoronascardigli.com/.netlify/functions/rate-portal"
+
+# SPA redirect - all routes go to index.html for Angular routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
