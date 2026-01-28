@@ -785,15 +785,9 @@ import { AuthService } from '@core/services/auth.service';
 
     .section-chips {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
-      overflow-x: auto;
       padding: 4px 0;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    .section-chips::-webkit-scrollbar {
-      display: none;
     }
 
     .section-chip {
@@ -1430,7 +1424,6 @@ import { AuthService } from '@core/services/auth.service';
       }
 
       .section-chips {
-        width: 100%;
         gap: 6px;
       }
 
@@ -1440,11 +1433,11 @@ import { AuthService } from '@core/services/auth.service';
       }
 
       .chip-number {
-        font-size: 12px;
+        font-size: 11px;
       }
 
       .chip-label {
-        display: none;
+        font-size: 10px;
       }
 
       .tariff-document {
