@@ -1,5 +1,6 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, signal, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   IonHeader,
@@ -12,7 +13,7 @@ import {
   IonBackButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { downloadOutline, printOutline, logOutOutline } from 'ionicons/icons';
+import { downloadOutline, printOutline, logOutOutline, searchOutline, closeCircle } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -20,6 +21,7 @@ import { AuthService } from '@core/services/auth.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -66,6 +68,59 @@ import { AuthService } from '@core/services/auth.service';
     </ion-header>
 
     <ion-content>
+      <!-- Premium Search & Navigation Bar -->
+      <div class="search-navigation-bar">
+        <div class="search-nav-container">
+          <!-- Search Input -->
+          <div class="search-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search tariff content..."
+              [(ngModel)]="searchQuery"
+              (input)="onSearch()"
+            >
+            @if (searchQuery()) {
+              <ion-icon
+                name="close-circle"
+                class="clear-icon"
+                (click)="clearSearch()"
+              ></ion-icon>
+            }
+          </div>
+
+          <!-- Section Navigation -->
+          <div class="section-nav">
+            <span class="nav-label">Jump to:</span>
+            <div class="section-chips">
+              @for (section of sections; track section.id) {
+                <button
+                  class="section-chip"
+                  [class.active]="activeSection() === section.id"
+                  (click)="scrollToSection(section.id)"
+                >
+                  <span class="chip-number">{{ section.id }}</span>
+                  <span class="chip-label">{{ section.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Search Results Count -->
+          @if (searchQuery() && searchResultsCount() > 0) {
+            <div class="search-results-info">
+              <span class="results-count">{{ searchResultsCount() }} matches found</span>
+            </div>
+          }
+          @if (searchQuery() && searchResultsCount() === 0) {
+            <div class="search-results-info no-results">
+              <span class="results-count">No matches found</span>
+            </div>
+          }
+        </div>
+      </div>
+
       <div class="tariff-document">
         <!-- Document Header -->
         <header class="document-header">
@@ -74,6 +129,7 @@ import { AuthService } from '@core/services/auth.service';
           </div>
           <h1 class="document-title">PUBLIC RULES TARIFF</h1>
           <p class="document-code">(DCST 001)</p>
+          <p class="document-subtitle">Structured in Danmar style: clear, neutral, tabular, FMC-clean</p>
         </header>
 
         <!-- Company Info -->
@@ -113,7 +169,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 100 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-100">
           <h2 class="section-title">
             <span class="section-number">100</span>
             Scope of Service
@@ -134,16 +190,12 @@ import { AuthService } from '@core/services/auth.service';
 
             <p>Applies to lawful, in-gauge, non-hazardous FCL cargo in standard equipment unless otherwise specified.</p>
 
-            <div class="notice-box warning">
-              <strong>Important:</strong> Hazardous, reefers, out-of-gauge, or regulated cargo require prior written approval.
-            </div>
-
             <p>All carriage moves under <strong>DCS USA House Bill of Lading</strong> and is subject to <strong>DCS USA Terms & Conditions of Service</strong>.</p>
           </div>
         </section>
 
         <!-- Section 200 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-200">
           <h2 class="section-title">
             <span class="section-number">200</span>
             Definitions
@@ -187,7 +239,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 300 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-300">
           <h2 class="section-title">
             <span class="section-number">300</span>
             Conditions of Carriage
@@ -209,7 +261,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 400 -->
-        <section class="tariff-section rates-section">
+        <section class="tariff-section rates-section" id="section-400">
           <h2 class="section-title">
             <span class="section-number">400</span>
             Base All-In FCL Rates
@@ -304,7 +356,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 500 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-500">
           <h2 class="section-title">
             <span class="section-number">500</span>
             Included Surcharges (In All-In Rates)
@@ -324,7 +376,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 600 -->
-        <section class="tariff-section accessorial-section">
+        <section class="tariff-section accessorial-section" id="section-600">
           <h2 class="section-title">
             <span class="section-number">600</span>
             Accessorial Charges (Not Included)
@@ -440,7 +492,7 @@ import { AuthService } from '@core/services/auth.service';
                   <tr>
                     <td class="code-cell">DCS-017</td>
                     <td>Change of Destination (COD)</td>
-                    <td class="charge-cell">$300 USD + diff.</td>
+                    <td class="charge-cell">$300 USD + diff. freight</td>
                     <td class="notes-cell">If accepted</td>
                   </tr>
                   <tr>
@@ -468,7 +520,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 700 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-700">
           <h2 class="section-title">
             <span class="section-number">700</span>
             Liability
@@ -504,7 +556,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 800 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-800">
           <h2 class="section-title">
             <span class="section-number">800</span>
             Governing Law & Venue
@@ -520,7 +572,7 @@ import { AuthService } from '@core/services/auth.service';
         </section>
 
         <!-- Section 900 -->
-        <section class="tariff-section">
+        <section class="tariff-section" id="section-900">
           <h2 class="section-title">
             <span class="section-number">900</span>
             Rate Conditions
@@ -638,6 +690,193 @@ import { AuthService } from '@core/services/auth.service';
       --color: #ef4444;
     }
 
+    /* Premium Search & Navigation Bar */
+    .search-navigation-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(30, 58, 95, 0.08);
+      box-shadow: 0 4px 24px rgba(30, 58, 95, 0.06);
+    }
+
+    .search-nav-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      font-size: 20px;
+      color: #94a3b8;
+      pointer-events: none;
+      transition: color 0.2s ease;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 48px;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e3a5f;
+      background: #ffffff;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .search-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .search-input:focus {
+      border-color: #1e3a5f;
+      box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.08), 0 4px 12px rgba(30, 58, 95, 0.12);
+    }
+
+    .search-input:focus + .search-icon,
+    .search-wrapper:has(.search-input:focus) .search-icon {
+      color: #1e3a5f;
+    }
+
+    .clear-icon {
+      position: absolute;
+      right: 16px;
+      font-size: 22px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .clear-icon:hover {
+      color: #1e3a5f;
+      transform: scale(1.1);
+    }
+
+    .section-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .section-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .section-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .section-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+
+    .section-chip:hover {
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+      transform: translateY(-1px);
+    }
+
+    .section-chip.active {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+    }
+
+    .section-chip.active .chip-number,
+    .section-chip.active .chip-label {
+      color: #ffffff;
+    }
+
+    .chip-number {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e3a5f;
+      transition: color 0.3s ease;
+    }
+
+    .chip-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #64748b;
+      transition: color 0.3s ease;
+    }
+
+    .search-results-info {
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      border-radius: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .search-results-info.no-results {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+
+    .results-count {
+      font-size: 13px;
+      font-weight: 600;
+      color: #166534;
+    }
+
+    .search-results-info.no-results .results-count {
+      color: #92400e;
+    }
+
+    /* Search Highlight */
+    .search-highlight {
+      background: linear-gradient(135deg, #fef08a 0%, #fde047 100%);
+      padding: 2px 4px;
+      border-radius: 4px;
+      color: #1e3a5f;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Document Container */
     .tariff-document {
       max-width: 900px;
@@ -679,6 +918,13 @@ import { AuthService } from '@core/services/auth.service';
       font-size: 16px;
       color: #64748b;
       margin: 0;
+    }
+
+    .document-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      font-style: italic;
+      margin: 12px 0 0;
     }
 
     /* Company Info */
@@ -1166,6 +1412,41 @@ import { AuthService } from '@core/services/auth.service';
 
     /* Responsive */
     @media (max-width: 768px) {
+      .search-nav-container {
+        padding: 12px 16px;
+        gap: 12px;
+      }
+
+      .search-input {
+        height: 46px;
+        font-size: 14px;
+        border-radius: 12px;
+      }
+
+      .section-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .section-chips {
+        width: 100%;
+        gap: 6px;
+      }
+
+      .section-chip {
+        padding: 6px 10px;
+        border-radius: 8px;
+      }
+
+      .chip-number {
+        font-size: 12px;
+      }
+
+      .chip-label {
+        display: none;
+      }
+
       .tariff-document {
         padding: 20px 16px;
       }
@@ -1238,8 +1519,16 @@ import { AuthService } from '@core/services/auth.service';
         padding: 0;
       }
 
-      .premium-header {
+      .premium-header,
+      .search-navigation-bar {
         display: none;
+      }
+
+      .search-highlight {
+        background: none;
+        padding: 0;
+        box-shadow: none;
+        font-weight: normal;
       }
     }
   `]
@@ -1256,8 +1545,113 @@ export class TariffPage {
     return (u.firstName?.[0] || '') + (u.lastName?.[0] || '');
   });
 
+  // Search & Navigation
+  searchQuery = signal('');
+  activeSection = signal('100');
+  searchResultsCount = signal(0);
+
+  sections = [
+    { id: '100', label: 'Scope' },
+    { id: '200', label: 'Definitions' },
+    { id: '300', label: 'Conditions' },
+    { id: '400', label: 'Rates' },
+    { id: '500', label: 'Surcharges' },
+    { id: '600', label: 'Accessorial' },
+    { id: '700', label: 'Liability' },
+    { id: '800', label: 'Law' },
+    { id: '900', label: 'Rate Cond.' }
+  ];
+
   constructor(private authService: AuthService) {
-    addIcons({ downloadOutline, printOutline, logOutOutline });
+    addIcons({ downloadOutline, printOutline, logOutOutline, searchOutline, closeCircle });
+  }
+
+  scrollToSection(sectionId: string): void {
+    this.activeSection.set(sectionId);
+    const element = document.getElementById(`section-${sectionId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  onSearch(): void {
+    const query = this.searchQuery().toLowerCase().trim();
+    if (!query) {
+      this.clearHighlights();
+      this.searchResultsCount.set(0);
+      return;
+    }
+
+    // Clear previous highlights
+    this.clearHighlights();
+
+    // Search and highlight
+    const tariffDoc = document.querySelector('.tariff-document');
+    if (tariffDoc) {
+      const count = this.highlightText(tariffDoc, query);
+      this.searchResultsCount.set(count);
+
+      // Scroll to first match
+      const firstMatch = document.querySelector('.search-highlight');
+      if (firstMatch) {
+        firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.clearHighlights();
+    this.searchResultsCount.set(0);
+  }
+
+  private highlightText(element: Element, query: string): number {
+    let count = 0;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+    const textNodes: Text[] = [];
+
+    while (walker.nextNode()) {
+      textNodes.push(walker.currentNode as Text);
+    }
+
+    textNodes.forEach(node => {
+      const text = node.textContent || '';
+      const lowerText = text.toLowerCase();
+      if (lowerText.includes(query)) {
+        const parent = node.parentNode as Element;
+        if (parent && !(parent as Element).closest?.('.search-navigation-bar')) {
+          const parts = text.split(new RegExp(`(${query})`, 'gi'));
+          const fragment = document.createDocumentFragment();
+
+          parts.forEach(part => {
+            if (part.toLowerCase() === query) {
+              const mark = document.createElement('mark');
+              mark.className = 'search-highlight';
+              mark.textContent = part;
+              fragment.appendChild(mark);
+              count++;
+            } else {
+              fragment.appendChild(document.createTextNode(part));
+            }
+          });
+
+          parent.replaceChild(fragment, node);
+        }
+      }
+    });
+
+    return count;
+  }
+
+  private clearHighlights(): void {
+    const highlights = document.querySelectorAll('.search-highlight');
+    highlights.forEach(mark => {
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+        parent.normalize();
+      }
+    });
   }
 
   downloadPdf(): void {

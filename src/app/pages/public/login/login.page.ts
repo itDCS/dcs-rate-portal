@@ -19,6 +19,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
+import { RecaptchaModule } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 import { MaintenanceService } from '@core/services/maintenance.service';
 
@@ -29,6 +30,7 @@ import { MaintenanceService } from '@core/services/maintenance.service';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    RecaptchaModule,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -102,10 +104,17 @@ import { MaintenanceService } from '@core/services/maintenance.service';
                 <a [routerLink]="['/forgot-password']">Forgot your password?</a>
               </div>
 
+              <div class="recaptcha-container">
+                <re-captcha
+                  (resolved)="onCaptchaResolved($event)"
+                  (errored)="onCaptchaError()"
+                ></re-captcha>
+              </div>
+
               <ion-button
                 expand="block"
                 type="submit"
-                [disabled]="form.invalid || loading()"
+                [disabled]="form.invalid || loading() || !captchaToken()"
                 class="button-large"
               >
                 @if (loading()) {
@@ -167,6 +176,12 @@ import { MaintenanceService } from '@core/services/maintenance.service';
       text-decoration: none;
     }
 
+    .recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
     .auth-footer {
       text-align: center;
       margin-top: 24px;
@@ -198,20 +213,6 @@ import { MaintenanceService } from '@core/services/maintenance.service';
         margin-bottom: 16px;
       }
 
-      .logo-dcs {
-        font-size: 24px;
-        letter-spacing: 1px;
-      }
-
-      .logo-divider {
-        height: 20px;
-      }
-
-      .logo-text {
-        font-size: 10px;
-        letter-spacing: 2px;
-      }
-
       .error-message {
         padding: 8px 12px;
         font-size: 13px;
@@ -229,6 +230,12 @@ import { MaintenanceService } from '@core/services/maintenance.service';
 
       .forgot-link a {
         font-size: 13px;
+      }
+
+      .recaptcha-container {
+        transform: scale(0.85);
+        transform-origin: center;
+        margin-bottom: 16px;
       }
 
       .auth-footer {
@@ -251,17 +258,8 @@ import { MaintenanceService } from '@core/services/maintenance.service';
         margin-bottom: 12px;
       }
 
-      .logo-dcs {
-        font-size: 22px;
-      }
-
-      .logo-divider {
-        height: 16px;
-      }
-
-      .logo-text {
-        font-size: 9px;
-        letter-spacing: 1.5px;
+      .recaptcha-container {
+        transform: scale(0.77);
       }
 
       .auth-footer {
@@ -276,6 +274,7 @@ export class LoginPage {
   loading = signal(false);
   error = signal<string | null>(null);
   showPassword = signal(false);
+  captchaToken = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -295,8 +294,17 @@ export class LoginPage {
     this.showPassword.update(v => !v);
   }
 
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken.set(token);
+  }
+
+  onCaptchaError(): void {
+    this.captchaToken.set(null);
+    this.error.set('CAPTCHA error. Please refresh and try again.');
+  }
+
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.captchaToken()) return;
 
     const submitStart = performance.now();
     console.log('========================================');
@@ -308,7 +316,9 @@ export class LoginPage {
     this.loading.set(true);
     this.error.set(null);
 
-    this.authService.login(this.form.value).subscribe({
+    const loginData = { ...this.form.value, captchaToken: this.captchaToken() };
+
+    this.authService.login(loginData).subscribe({
       next: (response) => {
         const authTime = performance.now() - submitStart;
         console.log(`[LoginPage] Auth completed: ${authTime.toFixed(2)}ms`);
@@ -339,6 +349,7 @@ export class LoginPage {
         console.log('========================================');
 
         this.loading.set(false);
+        this.captchaToken.set(null); // Reset captcha after error
 
         // Handle maintenance mode (503)
         if (err.status === 503 && err.error?.error?.code === 'MAINTENANCE_MODE') {

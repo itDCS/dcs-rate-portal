@@ -18,6 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, arrowBackOutline, checkmarkCircle } from 'ionicons/icons';
+import { RecaptchaModule } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -27,6 +28,7 @@ import { AuthService } from '@core/services/auth.service';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    RecaptchaModule,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -87,10 +89,17 @@ import { AuthService } from '@core/services/auth.service';
                   <ion-text color="danger" class="field-error">Invalid email format</ion-text>
                 }
 
+                <div class="recaptcha-container">
+                  <re-captcha
+                    (resolved)="onCaptchaResolved($event)"
+                    (errored)="onCaptchaError()"
+                  ></re-captcha>
+                </div>
+
                 <ion-button
                   expand="block"
                   type="submit"
-                  [disabled]="form.invalid || loading()"
+                  [disabled]="form.invalid || loading() || !captchaToken()"
                   class="button-large"
                 >
                   @if (loading()) {
@@ -161,6 +170,12 @@ import { AuthService } from '@core/services/auth.service';
       margin: -8px 0 12px 16px;
     }
 
+    .recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
     .auth-footer {
       text-align: center;
       margin-top: 24px;
@@ -185,6 +200,20 @@ import { AuthService } from '@core/services/auth.service';
       margin-inline-end: 12px;
       color: var(--ion-color-medium);
     }
+
+    @media (max-width: 480px) {
+      .recaptcha-container {
+        transform: scale(0.85);
+        transform-origin: center;
+        margin-bottom: 16px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .recaptcha-container {
+        transform: scale(0.77);
+      }
+    }
   `]
 })
 export class ForgotPasswordPage {
@@ -192,6 +221,7 @@ export class ForgotPasswordPage {
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal(false);
+  captchaToken = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -204,19 +234,31 @@ export class ForgotPasswordPage {
     });
   }
 
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken.set(token);
+  }
+
+  onCaptchaError(): void {
+    this.captchaToken.set(null);
+    this.error.set('CAPTCHA error. Please refresh and try again.');
+  }
+
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.captchaToken()) return;
 
     this.loading.set(true);
     this.error.set(null);
 
-    this.authService.forgotPassword(this.form.value.email).subscribe({
+    const data = { email: this.form.value.email, captchaToken: this.captchaToken()! };
+
+    this.authService.forgotPassword(data).subscribe({
       next: () => {
         this.loading.set(false);
         this.success.set(true);
       },
       error: (err) => {
         this.loading.set(false);
+        this.captchaToken.set(null); // Reset captcha after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Failed to send reset email. Please try again.');
       }
     });

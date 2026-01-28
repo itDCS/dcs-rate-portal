@@ -31,6 +31,7 @@ import {
   eyeOffOutline,
   checkmarkCircle
 } from 'ionicons/icons';
+import { RecaptchaModule } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 import { COUNTRIES } from '@core/data/countries';
 
@@ -41,6 +42,7 @@ import { COUNTRIES } from '@core/data/countries';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    RecaptchaModule,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -174,10 +176,17 @@ import { COUNTRIES } from '@core/data/countries';
                   <ion-text color="danger" class="field-error">Passwords do not match</ion-text>
                 }
 
+                <div class="recaptcha-container">
+                  <re-captcha
+                    (resolved)="onCaptchaResolved($event)"
+                    (errored)="onCaptchaError()"
+                  ></re-captcha>
+                </div>
+
                 <ion-button
                   expand="block"
                   type="submit"
-                  [disabled]="form.invalid || loading()"
+                  [disabled]="form.invalid || loading() || !captchaToken()"
                   class="button-large"
                 >
                   @if (loading()) {
@@ -262,6 +271,12 @@ import { COUNTRIES } from '@core/data/countries';
       color: var(--ion-color-medium);
     }
 
+    .recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
     .auth-footer {
       text-align: center;
       margin-top: 24px;
@@ -297,20 +312,6 @@ import { COUNTRIES } from '@core/data/countries';
         margin-bottom: 16px;
       }
 
-      .logo-dcs {
-        font-size: 24px;
-        letter-spacing: 1px;
-      }
-
-      .logo-divider {
-        height: 20px;
-      }
-
-      .logo-text {
-        font-size: 10px;
-        letter-spacing: 2px;
-      }
-
       .error-message {
         padding: 8px 12px;
         font-size: 13px;
@@ -341,6 +342,12 @@ import { COUNTRIES } from '@core/data/countries';
         margin-bottom: 16px;
       }
 
+      .recaptcha-container {
+        transform: scale(0.85);
+        transform-origin: center;
+        margin-bottom: 16px;
+      }
+
       .auth-footer {
         margin-top: 16px;
         padding-top: 16px;
@@ -361,17 +368,8 @@ import { COUNTRIES } from '@core/data/countries';
         margin-bottom: 12px;
       }
 
-      .logo-dcs {
-        font-size: 22px;
-      }
-
-      .logo-divider {
-        height: 16px;
-      }
-
-      .logo-text {
-        font-size: 9px;
-        letter-spacing: 1.5px;
+      .recaptcha-container {
+        transform: scale(0.77);
       }
 
       .auth-footer {
@@ -387,6 +385,7 @@ export class RegisterPage {
   error = signal<string | null>(null);
   success = signal(false);
   showPassword = signal(false);
+  captchaToken = signal<string | null>(null);
   countries = COUNTRIES;
 
   constructor(
@@ -430,13 +429,23 @@ export class RegisterPage {
     this.showPassword.update(v => !v);
   }
 
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken.set(token);
+  }
+
+  onCaptchaError(): void {
+    this.captchaToken.set(null);
+    this.error.set('CAPTCHA error. Please refresh and try again.');
+  }
+
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.captchaToken()) return;
 
     this.loading.set(true);
     this.error.set(null);
 
-    const { confirmPassword, ...data } = this.form.value;
+    const { confirmPassword, ...formData } = this.form.value;
+    const data = { ...formData, captchaToken: this.captchaToken() };
 
     this.authService.register(data).subscribe({
       next: () => {
@@ -445,6 +454,7 @@ export class RegisterPage {
       },
       error: (err) => {
         this.loading.set(false);
+        this.captchaToken.set(null); // Reset captcha after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Registration failed. Please try again.');
       }
     });

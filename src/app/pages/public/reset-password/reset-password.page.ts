@@ -18,6 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { lockClosedOutline, eyeOutline, eyeOffOutline, checkmarkCircle } from 'ionicons/icons';
+import { RecaptchaModule } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -27,6 +28,7 @@ import { AuthService } from '@core/services/auth.service';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
+    RecaptchaModule,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -106,10 +108,17 @@ import { AuthService } from '@core/services/auth.service';
                   <ion-text color="danger" class="field-error">Passwords do not match</ion-text>
                 }
 
+                <div class="recaptcha-container">
+                  <re-captcha
+                    (resolved)="onCaptchaResolved($event)"
+                    (errored)="onCaptchaError()"
+                  ></re-captcha>
+                </div>
+
                 <ion-button
                   expand="block"
                   type="submit"
-                  [disabled]="form.invalid || loading()"
+                  [disabled]="form.invalid || loading() || !captchaToken()"
                   class="button-large"
                 >
                   @if (loading()) {
@@ -199,6 +208,26 @@ import { AuthService } from '@core/services/auth.service';
       margin-inline-end: 12px;
       color: var(--ion-color-medium);
     }
+
+    .recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .recaptcha-container {
+        transform: scale(0.85);
+        transform-origin: center;
+        margin-bottom: 16px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .recaptcha-container {
+        transform: scale(0.77);
+      }
+    }
   `]
 })
 export class ResetPasswordPage implements OnInit {
@@ -208,6 +237,7 @@ export class ResetPasswordPage implements OnInit {
   error = signal<string | null>(null);
   success = signal(false);
   showPassword = signal(false);
+  captchaToken = signal<string | null>(null);
 
   constructor(
     private fb: FormBuilder,
@@ -238,19 +268,29 @@ export class ResetPasswordPage implements OnInit {
     this.showPassword.update(v => !v);
   }
 
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken.set(token);
+  }
+
+  onCaptchaError(): void {
+    this.captchaToken.set(null);
+    this.error.set('CAPTCHA error. Please refresh and try again.');
+  }
+
   onSubmit(): void {
-    if (this.form.invalid || !this.token) return;
+    if (this.form.invalid || !this.token || !this.captchaToken()) return;
 
     this.loading.set(true);
     this.error.set(null);
 
-    this.authService.resetPassword(this.token, this.form.value.password).subscribe({
+    this.authService.resetPassword(this.token, this.form.value.password, this.captchaToken()!).subscribe({
       next: () => {
         this.loading.set(false);
         this.success.set(true);
       },
       error: (err) => {
         this.loading.set(false);
+        this.captchaToken.set(null); // Reset captcha after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Failed to reset password. The link may have expired.');
       }
     });

@@ -17,6 +17,7 @@ export interface User {
 export interface LoginData {
   email: string;
   password: string;
+  captchaToken?: string;
 }
 
 export interface RegisterData {
@@ -27,6 +28,12 @@ export interface RegisterData {
   company: string;
   country: string;
   phone?: string;
+  captchaToken?: string;
+}
+
+export interface ForgotPasswordData {
+  email: string;
+  captchaToken?: string;
 }
 
 export interface AuthResponse {

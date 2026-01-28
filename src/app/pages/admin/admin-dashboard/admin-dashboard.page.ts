@@ -27,11 +27,12 @@ import {
   listOutline,
   trendingUpOutline,
   personOutline,
-  downloadOutline,
   calendarOutline,
   settingsOutline,
   warningOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  timeOutline,
+  logInOutline
 } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
 import { ApiService } from '@core/services/api.service';
@@ -41,10 +42,10 @@ import { MaintenanceStatus } from '@core/models/user.model';
 interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
+  pendingUsers: number;
   newUsersToday: number;
   newUsersThisWeek: number;
-  totalDownloads: number;
-  downloadsToday: number;
+  loginsToday: number;
 }
 
 @Component({
@@ -153,22 +154,22 @@ interface DashboardStats {
               </div>
 
               <div class="stat-card">
-                <div class="stat-icon downloads">
-                  <ion-icon name="download-outline"></ion-icon>
+                <div class="stat-icon pending">
+                  <ion-icon name="time-outline"></ion-icon>
                 </div>
                 <div class="stat-info">
-                  <span class="stat-value">{{ stats()?.totalDownloads || 0 }}</span>
-                  <span class="stat-label">Total Downloads</span>
+                  <span class="stat-value">{{ stats()?.pendingUsers || 0 }}</span>
+                  <span class="stat-label">Pending Activation</span>
                 </div>
               </div>
 
               <div class="stat-card">
-                <div class="stat-icon downloads-today">
-                  <ion-icon name="document-text-outline"></ion-icon>
+                <div class="stat-icon logins">
+                  <ion-icon name="log-in-outline"></ion-icon>
                 </div>
                 <div class="stat-info">
-                  <span class="stat-value">{{ stats()?.downloadsToday || 0 }}</span>
-                  <span class="stat-label">Downloads Today</span>
+                  <span class="stat-value">{{ stats()?.loginsToday || 0 }}</span>
+                  <span class="stat-label">Logins Today</span>
                 </div>
               </div>
             </div>
@@ -480,8 +481,8 @@ interface DashboardStats {
     .stat-icon.active { background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%); }
     .stat-icon.today { background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); }
     .stat-icon.week { background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); }
-    .stat-icon.downloads { background: linear-gradient(135deg, #b8860b 0%, #d4a017 100%); }
-    .stat-icon.downloads-today { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
+    .stat-icon.pending { background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); }
+    .stat-icon.logins { background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%); }
 
     .stat-info {
       display: flex;
@@ -856,11 +857,12 @@ export class AdminDashboardPage implements OnInit {
       listOutline,
       trendingUpOutline,
       personOutline,
-      downloadOutline,
       calendarOutline,
       settingsOutline,
       warningOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      timeOutline,
+      logInOutline
     });
   }
 

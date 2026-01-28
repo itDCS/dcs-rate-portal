@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { ApiService } from './api.service';
 import { StorageService } from './storage.service';
-import { User, AuthResponse, RegisterData, LoginData } from '../models/user.model';
+import { User, AuthResponse, RegisterData, LoginData, ForgotPasswordData } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -104,12 +104,12 @@ export class AuthService {
     return this.api.get<{ message: string; user: User }>(`auth/activate/${token}`);
   }
 
-  forgotPassword(email: string): Observable<{ message: string }> {
-    return this.api.post<{ message: string }>('auth/forgot-password', { email });
+  forgotPassword(data: ForgotPasswordData): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('auth/forgot-password', data);
   }
 
-  resetPassword(token: string, password: string): Observable<{ message: string }> {
-    return this.api.post<{ message: string }>('auth/reset-password', { token, password });
+  resetPassword(token: string, password: string, captchaToken: string): Observable<{ message: string }> {
+    return this.api.post<{ message: string }>('auth/reset-password', { token, password, captchaToken });
   }
 
   logout(): void {
