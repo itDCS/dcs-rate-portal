@@ -226,7 +226,8 @@ interface DashboardStats {
             </div>
           </section>
 
-          <!-- Maintenance Mode -->
+          <!-- Maintenance Mode (hidden - set showMaintenance = true to re-enable) -->
+          @if (showMaintenance) {
           <section class="maintenance-section">
             <h2 class="section-title">
               <ion-icon name="settings-outline"></ion-icon>
@@ -313,6 +314,7 @@ interface DashboardStats {
               </div>
             </div>
           </section>
+          }
         }
       </div>
 
@@ -835,6 +837,7 @@ interface DashboardStats {
   `]
 })
 export class AdminDashboardPage implements OnInit {
+  showMaintenance = false; // Set to true to show maintenance section
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
 
