@@ -37,8 +37,14 @@ import { AuthService } from '@core/services/auth.service';
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button defaultHref="/dashboard" color="primary"></ion-back-button>
-          <div class="header-logo">
-            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
+          <div class="user-info" [routerLink]="['/profile']">
+            <div class="user-avatar">
+              <span class="avatar-initials">{{ initials() }}</span>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ fullName() }}</span>
+              <span class="user-role">{{ user()?.company }}</span>
+            </div>
           </div>
         </ion-buttons>
         <ion-title>
@@ -51,14 +57,8 @@ import { AuthService } from '@core/services/auth.service';
           <ion-button (click)="downloadPdf()" class="header-btn">
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
           </ion-button>
-          <div class="user-info" [routerLink]="['/profile']">
-            <div class="user-avatar">
-              <span class="avatar-initials">{{ initials() }}</span>
-            </div>
-            <div class="user-details">
-              <span class="user-name">{{ fullName() }}</span>
-              <span class="user-role">{{ user()?.company }}</span>
-            </div>
+          <div class="header-logo">
+            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
           </div>
           <ion-button (click)="logout()" class="header-btn logout-btn">
             <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>

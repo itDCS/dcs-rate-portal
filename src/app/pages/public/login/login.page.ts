@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -19,7 +19,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
-import { RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 import { MaintenanceService } from '@core/services/maintenance.service';
 
@@ -270,6 +270,8 @@ import { MaintenanceService } from '@core/services/maintenance.service';
   `]
 })
 export class LoginPage {
+  @ViewChild(RecaptchaComponent) captchaRef!: RecaptchaComponent;
+
   form: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
@@ -349,7 +351,8 @@ export class LoginPage {
         console.log('========================================');
 
         this.loading.set(false);
-        this.captchaToken.set(null); // Reset captcha after error
+        this.captchaToken.set(null);
+        this.captchaRef?.reset(); // Reset captcha widget after error
 
         // Handle maintenance mode (503)
         if (err.status === 503 && err.error?.error?.code === 'MAINTENANCE_MODE') {

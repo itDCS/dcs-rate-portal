@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -31,7 +31,7 @@ import {
   eyeOffOutline,
   checkmarkCircle
 } from 'ionicons/icons';
-import { RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 import { COUNTRIES } from '@core/data/countries';
 
@@ -380,6 +380,8 @@ import { COUNTRIES } from '@core/data/countries';
   `]
 })
 export class RegisterPage {
+  @ViewChild(RecaptchaComponent) captchaRef!: RecaptchaComponent;
+
   form: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
@@ -454,7 +456,8 @@ export class RegisterPage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.captchaToken.set(null); // Reset captcha after error
+        this.captchaToken.set(null);
+        this.captchaRef?.reset(); // Reset captcha widget after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Registration failed. Please try again.');
       }
     });

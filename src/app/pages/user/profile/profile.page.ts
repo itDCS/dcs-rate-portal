@@ -47,14 +47,6 @@ import { User } from '@core/models/user.model';
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-back-button defaultHref="/dashboard" color="primary"></ion-back-button>
-          <div class="header-logo">
-            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
-          </div>
-        </ion-buttons>
-        <ion-title>
-          <span class="header-title">My Profile</span>
-        </ion-title>
-        <ion-buttons slot="end">
           <div class="header-user-info" [routerLink]="['/dashboard']">
             <div class="header-user-avatar">
               <span class="header-avatar-initials">{{ initials() }}</span>
@@ -63,6 +55,14 @@ import { User } from '@core/models/user.model';
               <span class="header-user-name">{{ fullName() }}</span>
               <span class="header-user-role">{{ user()?.company }}</span>
             </div>
+          </div>
+        </ion-buttons>
+        <ion-title>
+          <span class="header-title">My Profile</span>
+        </ion-title>
+        <ion-buttons slot="end">
+          <div class="header-logo">
+            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
           </div>
           <ion-button (click)="logout()" class="header-btn logout-btn">
             <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>

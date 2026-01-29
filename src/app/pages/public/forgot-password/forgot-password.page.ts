@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -18,7 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { mailOutline, arrowBackOutline, checkmarkCircle } from 'ionicons/icons';
-import { RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -217,6 +217,8 @@ import { AuthService } from '@core/services/auth.service';
   `]
 })
 export class ForgotPasswordPage {
+  @ViewChild(RecaptchaComponent) captchaRef!: RecaptchaComponent;
+
   form: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
@@ -258,7 +260,8 @@ export class ForgotPasswordPage {
       },
       error: (err) => {
         this.loading.set(false);
-        this.captchaToken.set(null); // Reset captcha after error
+        this.captchaToken.set(null);
+        this.captchaRef?.reset(); // Reset captcha widget after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Failed to send reset email. Please try again.');
       }
     });

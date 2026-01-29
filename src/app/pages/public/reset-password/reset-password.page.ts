@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -18,7 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { lockClosedOutline, eyeOutline, eyeOffOutline, checkmarkCircle } from 'ionicons/icons';
-import { RecaptchaModule } from 'ng-recaptcha';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha';
 import { AuthService } from '@core/services/auth.service';
 
 @Component({
@@ -231,6 +231,8 @@ import { AuthService } from '@core/services/auth.service';
   `]
 })
 export class ResetPasswordPage implements OnInit {
+  @ViewChild(RecaptchaComponent) captchaRef!: RecaptchaComponent;
+
   form: FormGroup;
   token: string | null = null;
   loading = signal(false);
@@ -290,7 +292,8 @@ export class ResetPasswordPage implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.captchaToken.set(null); // Reset captcha after error
+        this.captchaToken.set(null);
+        this.captchaRef?.reset(); // Reset captcha widget after error
         this.error.set(err.error?.error?.message || err.error?.message || 'Failed to reset password. The link may have expired.');
       }
     });

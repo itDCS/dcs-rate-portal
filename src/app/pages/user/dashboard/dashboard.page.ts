@@ -43,13 +43,6 @@ import { AuthService } from '@core/services/auth.service';
       <ion-toolbar>
         <ion-buttons slot="start">
           <ion-menu-button color="primary"></ion-menu-button>
-        </ion-buttons>
-        <ion-title>
-          <div class="header-logo">
-            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
-          </div>
-        </ion-title>
-        <ion-buttons slot="end">
           <div class="user-info" [routerLink]="['/profile']">
             <div class="user-avatar">
               <span class="avatar-initials">{{ initials() }}</span>
@@ -58,6 +51,12 @@ import { AuthService } from '@core/services/auth.service';
               <span class="user-name">{{ fullName() }}</span>
               <span class="user-role">{{ user()?.company }}</span>
             </div>
+          </div>
+        </ion-buttons>
+        <ion-title></ion-title>
+        <ion-buttons slot="end">
+          <div class="header-logo">
+            <img src="assets/images/dcs-logo.png" alt="DCS Rate Portal" class="header-logo-img">
           </div>
           <ion-button (click)="logout()" class="header-btn logout-btn">
             <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
