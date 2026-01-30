@@ -22,6 +22,7 @@ import {
   callOutline
 } from 'ionicons/icons';
 import { AuthService } from '@core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -133,7 +134,7 @@ import { AuthService } from '@core/services/auth.service';
               <h3>Need Assistance?</h3>
               <p>Our team is ready to help with rate inquiries and shipment coordination</p>
             </div>
-            <a href="mailto:operations@dcsusa.com" class="contact-btn">
+            <a [href]="'mailto:' + contactEmail" class="contact-btn">
               <ion-icon name="call-outline"></ion-icon>
               Contact Operations
             </a>
@@ -538,6 +539,7 @@ import { AuthService } from '@core/services/auth.service';
   `]
 })
 export class DashboardPage {
+  contactEmail = environment.contactEmail;
   user = computed(() => this.authService.user());
   firstName = computed(() => this.user()?.firstName || 'User');
   fullName = computed(() => {
